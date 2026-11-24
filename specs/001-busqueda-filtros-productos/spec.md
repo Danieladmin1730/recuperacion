@@ -8,6 +8,12 @@
 
 **Input**: User description: "Funcionalidad: búsqueda y filtro de productos en el módulo de productos del Sistema de Ventas (código en SistemaVentas-main/). El usuario debe poder buscar productos escribiendo parte del nombre o del código, y filtrar el listado por categoría y por estado de stock (con stock / sin stock). Los resultados se muestran en el mismo listado existente, con un mensaje claro cuando no haya coincidencias, y un botón para limpiar los filtros. La búsqueda no distingue mayúsculas de minúsculas. No debe alterar el funcionamiento actual del listado cuando no se aplica ningún filtro."
 
+## Clarifications
+
+### Session 2026-11-24
+
+- Q: ¿El filtro nuevo de disponibilidad (con stock/sin stock) debe añadirse conservando los filtros actuales de activo/inactivo y stock bajo? → A: Añadirlo como criterio independiente y conservar los filtros actuales de activo/inactivo y stock bajo.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Encontrar productos por texto (Priority: P1)
@@ -40,6 +46,7 @@ El usuario restringe el listado a una categoría, a productos con stock o sin st
 2. **Given** productos con y sin unidades disponibles, **When** el usuario selecciona “con stock” o “sin stock”, **Then** el listado muestra únicamente productos que corresponden al estado elegido.
 3. **Given** que el usuario ha introducido texto y seleccionado una categoría y un estado de stock, **When** se actualizan los resultados, **Then** solo aparecen productos que cumplen simultáneamente todos los criterios activos.
 4. **Given** que ningún producto cumple los criterios activos, **When** se actualiza el listado, **Then** se muestra un mensaje claro de que no hay productos coincidentes y se ofrece la acción para limpiar los filtros.
+5. **Given** que el usuario combina disponibilidad con los filtros existentes de activo/inactivo o stock bajo, **When** se actualiza el listado, **Then** cada filtro permanece disponible y los resultados cumplen todos los criterios activos.
 
 ---
 
@@ -53,7 +60,7 @@ El usuario puede limpiar todos los criterios para volver al listado normal. Si n
 
 **Acceptance Scenarios**:
 
-1. **Given** que uno o más criterios están activos, **When** el usuario pulsa “Limpiar filtros”, **Then** se vacía la búsqueda, se restablecen los filtros de categoría y stock y se muestra el listado normal.
+1. **Given** que uno o más criterios están activos, **When** el usuario pulsa “Limpiar filtros”, **Then** se vacía la búsqueda, se restablecen categoría, disponibilidad, estado del producto y stock bajo a sus valores predeterminados y se muestra el listado normal.
 2. **Given** que no hay criterios activos, **When** el usuario abre el listado de productos, **Then** se conserva el contenido, orden y comportamiento actuales del listado.
 
 ### Edge Cases
@@ -74,8 +81,9 @@ El usuario puede limpiar todos los criterios para volver al listado normal. Si n
 - **FR-005**: Cuando haya más de un criterio activo, el listado MUST mostrar solo productos que cumplan cada criterio activo.
 - **FR-006**: Los resultados MUST aparecer en el listado de productos existente.
 - **FR-007**: Si no hay productos que coincidan con los criterios activos, el listado MUST mostrar un mensaje claro y una acción para limpiar los filtros.
-- **FR-008**: La acción para limpiar filtros MUST borrar el texto de búsqueda y restablecer los filtros de categoría y stock, restaurando el listado normal.
-- **FR-009**: Cuando no haya filtros activos, el listado MUST conservar el contenido, orden y comportamiento que tiene actualmente.
+- **FR-008**: La acción para limpiar filtros MUST borrar el texto de búsqueda y restablecer categoría, disponibilidad, estado del producto y stock bajo a sus valores predeterminados, restaurando el listado normal actual.
+- **FR-009**: Cuando no haya filtros nuevos activos, el listado MUST conservar el contenido, orden y comportamiento que tiene actualmente, incluidos sus valores predeterminados de estado del producto.
+- **FR-010**: El filtro de disponibilidad MUST añadirse sin reemplazar los filtros existentes de activo/inactivo y stock bajo.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -98,4 +106,5 @@ El usuario puede limpiar todos los criterios para volver al listado normal. Si n
 - “Con stock” significa que la cantidad disponible del producto es mayor que cero; “sin stock” significa que es cero.
 - Cuando se combinan criterios, estos se aplican conjuntamente: un producto debe cumplirlos todos para aparecer.
 - La lista de categorías ofrecida corresponde a las categorías ya disponibles en el módulo de productos.
+- Los filtros existentes de activo/inactivo y stock bajo permanecen disponibles junto con el nuevo filtro de disponibilidad.
 - Limpiar filtros restablece el listado existente sin cambiar sus opciones actuales de orden o navegación.
