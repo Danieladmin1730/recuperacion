@@ -5,7 +5,7 @@ Sync Impact Report:
 - Added sections: Core Principles; Security and Data Integrity;
   Development Workflow and Quality Gates; Governance
 - Removed sections: none
-- - Deferred TODOs: none
+- Deferred TODOs: none
 -->
 
 # Sistema de Ventas con Asesor IA Constitution
