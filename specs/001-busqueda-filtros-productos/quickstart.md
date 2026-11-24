@@ -12,6 +12,7 @@
 - Para la comprobación visual en la aplicación, la base MySQL del proyecto debe estar configurada y disponible.
 
 Las pruebas automatizadas usan una base SQLite en memoria y no requieren una conexión a MySQL.
+En Windows, Composer también requiere `ext-zip` habilitada o una herramienta de extracción compatible, como `unzip` o 7-Zip.
 
 ## Preparar y ejecutar PHPUnit
 
@@ -24,6 +25,11 @@ composer install
 ```
 
 Resultado esperado: PHPUnit descubre y ejecuta la suite del proyecto; todas las pruebas de búsqueda y filtros pasan.
+
+## Resultado de validación
+
+- PHPUnit 10.5.67, PHP 8.2.12: 10 pruebas y 10 aserciones pasaron.
+- La comprobación visual no se pudo ejecutar en este entorno porque la conexión MySQL configurada no está disponible. Debe repetirse siguiendo los pasos siguientes cuando MySQL esté operativo.
 
 ## Escenarios de validación automatizada
 

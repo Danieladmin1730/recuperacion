@@ -10,6 +10,7 @@ $filtros = [
     'categoria' => (int)($_GET['categoria'] ?? 0),
     'estado' => in_array($_GET['estado'] ?? '1', ['1', '0', ''], true) ? ($_GET['estado'] ?? '1') : '1',
     'stock_bajo' => !empty($_GET['stock_bajo']),
+    'disponibilidad' => in_array($_GET['disponibilidad'] ?? '', ['con_stock', 'sin_stock'], true) ? $_GET['disponibilidad'] : '',
 ];
 $productos = $controller->listar($filtros);
 $categorias = $controller->categorias();
@@ -39,8 +40,14 @@ require __DIR__ . '/../layouts/header.php';
       <?php foreach (['1' => 'Activos', '0' => 'Inactivos', '' => 'Todos'] as $k => $v): ?><option value="<?= $k ?>" <?= $filtros['estado'] === (string)$k ? 'selected' : '' ?>><?= $v ?></option><?php endforeach; ?>
     </select>
   </label>
+  <label>Disponibilidad
+    <select name="disponibilidad">
+      <?php foreach (['' => 'Todas', 'con_stock' => 'Con stock', 'sin_stock' => 'Sin stock'] as $k => $v): ?><option value="<?= e($k) ?>" <?= $filtros['disponibilidad'] === $k ? 'selected' : '' ?>><?= e($v) ?></option><?php endforeach; ?>
+    </select>
+  </label>
   <label class="check"><input type="checkbox" name="stock_bajo" value="1" <?= $filtros['stock_bajo'] ? 'checked' : '' ?>> Solo stock bajo</label>
   <button class="btn">Filtrar</button>
+  <a class="btn btn-light" href="index.php">Limpiar filtros</a>
 </form>
 <p class="resumen-filtro"><?= count($productos) ?> productos</p>
 <div class="table-card">
@@ -71,7 +78,7 @@ require __DIR__ . '/../layouts/header.php';
       </td>
     </tr>
   <?php endforeach; ?>
-  <?php if (!$productos): ?><tr><td colspan="9" class="empty">No hay productos con estos filtros.<?= !$categorias && tienePermiso('categorias.gestionar') ? ' Empieza creando una <a href="../categorias/index.php">categoría</a>.' : '' ?></td></tr><?php endif; ?>
+  <?php if (!$productos): ?><tr><td colspan="9" class="empty">No hay productos con estos filtros. <a class="btn btn-light btn-sm" href="index.php">Limpiar filtros</a><?= !$categorias && tienePermiso('categorias.gestionar') ? ' Empieza creando una <a href="../categorias/index.php">categoría</a>.' : '' ?></td></tr><?php endif; ?>
   </tbody>
 </table>
 </div>

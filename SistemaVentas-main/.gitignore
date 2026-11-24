@@ -7,3 +7,4 @@ assets/img/empresa/*
 # Dependencias de Composer y clave de la IA (no se versionan)
 vendor/
 config/ia.local.php
+.phpunit.cache/

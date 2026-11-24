@@ -1,0 +1,19 @@
+# Composer dependencies
+**/vendor/
+
+# Local configuration and secrets
+**/.env*
+!**/.env.example
+**/config/ia.local.php
+
+# Logs, caches, and temporary files
+*.log
+*.cache
+*.tmp
+*.swp
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

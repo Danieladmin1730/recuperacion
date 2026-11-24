@@ -20,14 +20,14 @@ Cada tarea usa `- [ ] T### [P?] [US#?] Descripción con rutas de archivo`. `[P]`
 
 **Purpose**: Preparar PHPUnit como herramienta de desarrollo y configurar la ejecución de pruebas.
 
-- [ ] T001 Añadir `phpunit/phpunit` `^10.5` en `require-dev` de `SistemaVentas-main/composer.json` y actualizar `SistemaVentas-main/composer.lock` mediante Composer, sin modificar dependencias de producción.
-- [ ] T002 [P] Crear `SistemaVentas-main/phpunit.xml` para descubrir las pruebas de `SistemaVentas-main/tests/Unit/` y crear `SistemaVentas-main/tests/bootstrap.php` para cargar el modelo requerido por la suite.
+- [X] T001 Añadir `phpunit/phpunit` `^10.5` en `require-dev` de `SistemaVentas-main/composer.json` y actualizar `SistemaVentas-main/composer.lock` mediante Composer, sin modificar dependencias de producción.
+- [X] T002 [P] Crear `SistemaVentas-main/phpunit.xml` para descubrir las pruebas de `SistemaVentas-main/tests/Unit/` y crear `SistemaVentas-main/tests/bootstrap.php` para cargar el modelo requerido por la suite.
 
 ## Phase 2: Foundational
 
 **Purpose**: Proveer datos de prueba reutilizables para las pruebas del modelo antes de implementar las historias.
 
-- [ ] T003 Crear `SistemaVentas-main/tests/Support/ProductoTestDatabase.php` con PDO SQLite en memoria, esquema mínimo de categorías y productos, datos semilla deterministas y un modo de comparación sensible a mayúsculas para verificar la búsqueda insensible a mayúsculas.
+- [X] T003 Crear `SistemaVentas-main/tests/Support/ProductoTestDatabase.php` con PDO SQLite en memoria, esquema mínimo de categorías y productos, datos semilla deterministas y un modo de comparación sensible a mayúsculas para verificar la búsqueda insensible a mayúsculas.
 
 ## Phase 3: User Story 1 - Encontrar productos por texto (Priority: P1) — MVP
 
@@ -37,11 +37,11 @@ Cada tarea usa `- [ ] T### [P?] [US#?] Descripción con rutas de archivo`. `[P]`
 
 ### Tests for User Story 1
 
-- [ ] T004 [US1] Crear `SistemaVentas-main/tests/Unit/ProductoBusquedaTest.php` con pruebas PHPUnit de coincidencia parcial y de mayúsculas/minúsculas; cubrir las reglas de `FiltroListado.q` y los campos `Producto.nombre`, `Producto.codigo` y `Producto.codigo_barras` definidos en `data-model.md`.
+- [X] T004 [US1] Crear `SistemaVentas-main/tests/Unit/ProductoBusquedaTest.php` con pruebas PHPUnit de coincidencia parcial y de mayúsculas/minúsculas; cubrir las reglas de `FiltroListado.q` y los campos `Producto.nombre`, `Producto.codigo` y `Producto.codigo_barras` definidos en `data-model.md`.
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Actualizar la búsqueda `q` en `SistemaVentas-main/models/Producto.php` para garantizar coincidencia parcial sin distinguir mayúsculas/minúsculas, mantener la búsqueda por `Producto.nombre`, `Producto.codigo` y `Producto.codigo_barras` y conservar parámetros PDO preparados, según `FiltroListado.q` en `data-model.md`.
+- [X] T005 [US1] Actualizar la búsqueda `q` en `SistemaVentas-main/models/Producto.php` para garantizar coincidencia parcial sin distinguir mayúsculas/minúsculas, mantener la búsqueda por `Producto.nombre`, `Producto.codigo` y `Producto.codigo_barras` y conservar parámetros PDO preparados, según `FiltroListado.q` en `data-model.md`.
 
 **Checkpoint**: La búsqueda por texto pasa sus pruebas de forma independiente y no altera los criterios distintos de texto.
 
@@ -53,13 +53,13 @@ Cada tarea usa `- [ ] T### [P?] [US#?] Descripción con rutas de archivo`. `[P]`
 
 ### Tests for User Story 2
 
-- [ ] T006 [US2] Crear `SistemaVentas-main/tests/Unit/ProductoDisponibilidadTest.php` con pruebas PHPUnit para categoría, productos con/sin stock y combinación de criterios; cubrir `FiltroListado.categoria`, `FiltroListado.disponibilidad`, `FiltroListado.estado`, `FiltroListado.stock_bajo` y los campos `Producto.id_categoria`, `Producto.stock`, `Producto.estado`, `Producto.stock_minimo` de `data-model.md`.
+- [X] T006 [US2] Crear `SistemaVentas-main/tests/Unit/ProductoDisponibilidadTest.php` con pruebas PHPUnit para categoría, productos con/sin stock y combinación de criterios; cubrir `FiltroListado.categoria`, `FiltroListado.disponibilidad`, `FiltroListado.estado`, `FiltroListado.stock_bajo` y los campos `Producto.id_categoria`, `Producto.stock`, `Producto.estado`, `Producto.stock_minimo` de `data-model.md`.
 
 ### Implementation for User Story 2
 
-- [ ] T007 [P] [US2] Ampliar `Producto::listar()` en `SistemaVentas-main/models/Producto.php` para aceptar solo `FiltroListado.disponibilidad` (`con_stock`, `sin_stock` o vacío), aplicar la condición a `Producto.stock` y combinarla con `FiltroListado.categoria`/`Producto.id_categoria`, `FiltroListado.estado`/`Producto.estado` y `FiltroListado.stock_bajo`/`Producto.stock_minimo`, según `data-model.md`, sin sustituir los filtros existentes.
-- [ ] T008 [P] [US2] Validar el parámetro GET de disponibilidad e incorporar el selector “Todas / Con stock / Sin stock” al formulario de `SistemaVentas-main/views/productos/index.php`; conservar las reglas de `FiltroListado.q`, `FiltroListado.categoria`, `FiltroListado.estado`, `FiltroListado.stock_bajo` y `FiltroListado.disponibilidad`, y mostrar las opciones con `Categoria.id_categoria`, `Categoria.nombre` y `Categoria.estado`, según `data-model.md`.
-- [ ] T009 [US2] En `SistemaVentas-main/views/productos/index.php`, presentar un mensaje claro cuando no haya resultados y ofrecer desde ese estado una acción que restablezca los criterios a sus valores predeterminados.
+- [X] T007 [P] [US2] Ampliar `Producto::listar()` en `SistemaVentas-main/models/Producto.php` para aceptar solo `FiltroListado.disponibilidad` (`con_stock`, `sin_stock` o vacío), aplicar la condición a `Producto.stock` y combinarla con `FiltroListado.categoria`/`Producto.id_categoria`, `FiltroListado.estado`/`Producto.estado` y `FiltroListado.stock_bajo`/`Producto.stock_minimo`, según `data-model.md`, sin sustituir los filtros existentes.
+- [X] T008 [P] [US2] Validar el parámetro GET de disponibilidad e incorporar el selector “Todas / Con stock / Sin stock” al formulario de `SistemaVentas-main/views/productos/index.php`; conservar las reglas de `FiltroListado.q`, `FiltroListado.categoria`, `FiltroListado.estado`, `FiltroListado.stock_bajo` y `FiltroListado.disponibilidad`, y mostrar las opciones con `Categoria.id_categoria`, `Categoria.nombre` y `Categoria.estado`, según `data-model.md`.
+- [X] T009 [US2] En `SistemaVentas-main/views/productos/index.php`, presentar un mensaje claro cuando no haya resultados y ofrecer desde ese estado una acción que restablezca los criterios a sus valores predeterminados.
 
 **Checkpoint**: Categoría, stock y criterios anteriores se combinan correctamente; la lista vacía comunica el resultado y permite recuperarse.
 
@@ -71,11 +71,11 @@ Cada tarea usa `- [ ] T### [P?] [US#?] Descripción con rutas de archivo`. `[P]`
 
 ### Tests for User Story 3
 
-- [ ] T010 [US3] Crear `SistemaVentas-main/tests/Unit/ProductoListadoPredeterminadoTest.php` con una prueba de regresión de `Producto::listar()` que compruebe el orden y resultados con los criterios actuales, sin disponibilidad nueva; cubrir `Producto.estado`, `Producto.nombre`, `Producto.stock_minimo` y los valores predeterminados de `FiltroListado.estado` y `FiltroListado.stock_bajo` en `data-model.md`.
+- [X] T010 [US3] Crear `SistemaVentas-main/tests/Unit/ProductoListadoPredeterminadoTest.php` con una prueba de regresión de `Producto::listar()` que compruebe el orden y resultados con los criterios actuales, sin disponibilidad nueva; cubrir `Producto.estado`, `Producto.nombre`, `Producto.stock_minimo` y los valores predeterminados de `FiltroListado.estado` y `FiltroListado.stock_bajo` en `data-model.md`.
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] En `SistemaVentas-main/views/productos/index.php`, hacer que “Limpiar filtros” esté disponible con resultados y sin ellos y restablezca búsqueda, categoría, disponibilidad, estado y stock bajo a los valores predeterminados de `FiltroListado.q`, `FiltroListado.categoria`, `FiltroListado.disponibilidad`, `FiltroListado.estado` y `FiltroListado.stock_bajo` en `data-model.md`; conservar las filas y acciones actuales identificadas por `Producto.id_producto` y escapar la salida con `e()`.
+- [X] T011 [US3] En `SistemaVentas-main/views/productos/index.php`, hacer que “Limpiar filtros” esté disponible con resultados y sin ellos y restablezca búsqueda, categoría, disponibilidad, estado y stock bajo a los valores predeterminados de `FiltroListado.q`, `FiltroListado.categoria`, `FiltroListado.disponibilidad`, `FiltroListado.estado` y `FiltroListado.stock_bajo` en `data-model.md`; conservar las filas y acciones actuales identificadas por `Producto.id_producto` y escapar la salida con `e()`.
 
 **Checkpoint**: Limpiar filtros desde cualquier estado restaura el listado normal y los criterios previos siguen disponibles.
 

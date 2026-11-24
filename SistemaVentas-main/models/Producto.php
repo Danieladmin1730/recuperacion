@@ -2,16 +2,18 @@
 class Producto {
     public function __construct(private PDO $db) {}
 
-    // Filtros: q (nombre/código/código de barras), categoria, estado ('1','0' o ''), stock_bajo (bool).
+    // Filtros: q (nombre/código/código de barras), categoria, estado, stock_bajo y disponibilidad.
     public function listar(array $f=[]): array {
         $where=['1=1']; $p=[];
         if (($f['q'] ?? '')!=='') {
-            $where[]='(p.nombre LIKE :q1 OR p.codigo LIKE :q2 OR p.codigo_barras LIKE :q3)';
+            $where[]='(LOWER(p.nombre) LIKE LOWER(:q1) OR LOWER(p.codigo) LIKE LOWER(:q2) OR LOWER(p.codigo_barras) LIKE LOWER(:q3))';
             $p['q1']=$p['q2']=$p['q3']='%'.$f['q'].'%';
         }
         if (!empty($f['categoria'])) { $where[]='p.id_categoria=:cat'; $p['cat']=(int)$f['categoria']; }
         if (($f['estado'] ?? '')!=='') { $where[]='p.estado=:estado'; $p['estado']=(int)$f['estado']; }
         if (!empty($f['stock_bajo'])) $where[]='p.stock<=p.stock_minimo';
+        if (($f['disponibilidad'] ?? '')==='con_stock') $where[]='p.stock>0';
+        elseif (($f['disponibilidad'] ?? '')==='sin_stock') $where[]='p.stock=0';
         $s=$this->db->prepare("SELECT p.*,c.nombre categoria FROM productos p
             INNER JOIN categorias c ON c.id_categoria=p.id_categoria
             WHERE ".implode(' AND ',$where)." ORDER BY p.estado DESC, p.nombre LIMIT 500");
