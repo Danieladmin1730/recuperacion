@@ -29,7 +29,8 @@ Resultado esperado: PHPUnit descubre y ejecuta la suite del proyecto; todas las 
 ## Resultado de validación
 
 - PHPUnit 10.5.67, PHP 8.2.12: 10 pruebas y 10 aserciones pasaron.
-- La comprobación visual no se pudo ejecutar en este entorno porque la conexión MySQL configurada no está disponible. Debe repetirse siguiendo los pasos siguientes cuando MySQL esté operativo.
+- La conexión a `sistema_ventas` está disponible y el servidor embebido responde en `http://localhost:8000`.
+- El listado está en `http://localhost:8000/views/productos/index.php`; sin sesión redirige al login. La comprobación visual de filtros y resultados debe completarse después de iniciar sesión con permiso `productos.ver`.
 
 ## Escenarios de validación automatizada
 
