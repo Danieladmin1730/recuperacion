@@ -5,8 +5,8 @@ Sync Impact Report:
 - Added sections: Core Principles; Security and Data Integrity;
   Development Workflow and Quality Gates; Governance
 - Removed sections: none
-- Deferred TODOs: RATIFICATION_DATE is unknown and retained as
-  TODO(RATIFICATION_DATE): confirm the original adoption date
+- Deferred TODOs: none is unknown and retained as
+  TODO(2026-11-24): confirm the original adoption date
 -->
 
 # Sistema de Ventas con Asesor IA Constitution
