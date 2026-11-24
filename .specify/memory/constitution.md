@@ -5,8 +5,7 @@ Sync Impact Report:
 - Added sections: Core Principles; Security and Data Integrity;
   Development Workflow and Quality Gates; Governance
 - Removed sections: none
-- Deferred TODOs: none is unknown and retained as
-  TODO(2026-11-24): confirm the original adoption date
+- - Deferred TODOs: none
 -->
 
 # Sistema de Ventas con Asesor IA Constitution
@@ -97,4 +96,4 @@ El cumplimiento MUST revisarse al finalizar cada funcionalidad y antes de una
 entrega. La revisión SHALL confirmar arquitectura, seguridad, integridad de
 datos, compatibilidad, pruebas y documentación.
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): confirmar la fecha original de adopción | **Last Amended**: 2026-11-24
+**Version**: 1.0.0 | **Ratified**: 2026-11-24 | **Last Amended**: 2026-11-24
