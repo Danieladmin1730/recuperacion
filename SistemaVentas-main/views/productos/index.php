@@ -5,15 +5,9 @@ require_once __DIR__ . '/../../helpers/funciones.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 requirePermission('productos.ver');
 $controller = new ProductoController();
-$filtros = [
-    'q' => mb_substr(trim($_GET['q'] ?? ''), 0, 100),
-    'categoria' => (int)($_GET['categoria'] ?? 0),
-    'estado' => in_array($_GET['estado'] ?? '1', ['1', '0', ''], true) ? ($_GET['estado'] ?? '1') : '1',
-    'stock_bajo' => !empty($_GET['stock_bajo']),
-    'disponibilidad' => in_array($_GET['disponibilidad'] ?? '', ['con_stock', 'sin_stock'], true) ? $_GET['disponibilidad'] : '',
-];
-$productos = $controller->listar($filtros);
 $categorias = $controller->categorias();
+$filtros = normalizarFiltrosListadoProductos($_GET, array_column($categorias, 'id_categoria'));
+$productos = $controller->listar($filtros);
 $verCostos = tienePermiso('productos.editar');
 $unidades = unidadesMedida();
 $titulo = 'Productos';

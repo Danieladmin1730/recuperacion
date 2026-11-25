@@ -83,7 +83,7 @@ Cada tarea usa `- [ ] T### [P?] [US#?] Descripción con rutas de archivo`. `[P]`
 
 **Purpose**: Validar el conjunto completo contra el contrato y la guía de ejecución.
 
-- [ ] T012 Ejecutar PHPUnit desde `SistemaVentas-main/` y completar los escenarios de `specs/001-busqueda-filtros-productos/quickstart.md`; registrar en ese archivo cualquier resultado o requisito de ejecución que haya cambiado.
+- [X] T012 Ejecutar PHPUnit desde `SistemaVentas-main/` y completar los escenarios de `specs/001-busqueda-filtros-productos/quickstart.md`; registrar en ese archivo cualquier resultado o requisito de ejecución que haya cambiado.
 
 ## Dependencies & Execution Order
 
@@ -146,5 +146,5 @@ US1 es el MVP técnico más pequeño; para completar el alcance funcional solici
 
 ## Phase 7: Convergence
 
-- [ ] T013 [CRITICAL] Validar estrictamente los parámetros GET de productos según FR-011: manejar `q` no textual sin error, aceptar solo categorías activas con identificador entero positivo y limitar `stock_bajo` a ausente o `'1'`; conservar los defaults definidos para estado y disponibilidad y añadir pruebas de regresión para valores inválidos. per FR-011, Constitution IV (contradicts)
-- [ ] T014 Completar la comprobación visual autenticada del listado siguiendo `quickstart.md`: validar filtros combinados, mensaje y acción sin coincidencias, y restauración del listado con “Limpiar filtros”; registrar el resultado. per SC-003, SC-005, T012 (partial)
+- [X] T013 [CRITICAL] Validar estrictamente los parámetros GET de productos según FR-011: manejar `q` no textual sin error, aceptar solo categorías activas con identificador entero positivo y limitar `stock_bajo` a ausente o `'1'`; conservar los defaults definidos para estado y disponibilidad y añadir pruebas de regresión para valores inválidos. per FR-011, Constitution IV (contradicts)
+- [X] T014 Completar la comprobación visual autenticada del listado siguiendo `quickstart.md`: validar filtros combinados, mensaje y acción sin coincidencias, y restauración del listado con “Limpiar filtros”; registrar el resultado. per SC-003, SC-005, T012 (partial)

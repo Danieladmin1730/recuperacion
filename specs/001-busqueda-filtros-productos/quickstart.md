@@ -28,9 +28,10 @@ Resultado esperado: PHPUnit descubre y ejecuta la suite del proyecto; todas las 
 
 ## Resultado de validación
 
-- PHPUnit 10.5.67, PHP 8.2.12: 10 pruebas y 10 aserciones pasaron.
+- PHPUnit 10.5.67, PHP 8.2.12: 15 pruebas y 24 aserciones pasaron.
 - La conexión a `sistema_ventas` está disponible y el servidor embebido responde en `http://localhost:8000`.
-- El listado está en `http://localhost:8000/views/productos/index.php`; sin sesión redirige al login. La comprobación visual de filtros y resultados debe completarse después de iniciar sesión con permiso `productos.ver`.
+- El listado está en `http://localhost:8000/views/productos/index.php`.
+- Validación visual manual informada por un Administrador: se revisó la búsqueda por nombre y código sin distinguir mayúsculas, los filtros por categoría y disponibilidad, “Solo stock bajo”, el mensaje sin resultados y la limpieza de filtros. Resultado: satisfactorio.
 
 ## Escenarios de validación automatizada
 
