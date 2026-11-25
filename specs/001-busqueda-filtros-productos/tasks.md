@@ -143,3 +143,8 @@ US1 es el MVP técnico más pequeño; para completar el alcance funcional solici
 - Cada tarea de historia lleva su etiqueta `[US1]`, `[US2]` o `[US3]`.
 - Las tareas de prueba deben preceder a la implementación correspondiente.
 - Las restricciones de campos se citan desde `data-model.md` en las tareas que las implementan.
+
+## Phase 7: Convergence
+
+- [ ] T013 [CRITICAL] Validar estrictamente los parámetros GET de productos según FR-011: manejar `q` no textual sin error, aceptar solo categorías activas con identificador entero positivo y limitar `stock_bajo` a ausente o `'1'`; conservar los defaults definidos para estado y disponibilidad y añadir pruebas de regresión para valores inválidos. per FR-011, Constitution IV (contradicts)
+- [ ] T014 Completar la comprobación visual autenticada del listado siguiendo `quickstart.md`: validar filtros combinados, mensaje y acción sin coincidencias, y restauración del listado con “Limpiar filtros”; registrar el resultado. per SC-003, SC-005, T012 (partial)
