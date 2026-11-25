@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Se documenta explícitamente que el costo se incluirá para quienes tengan permiso de ver productos, según la solicitud.
+- Se documenta explícitamente que solo quienes tengan permiso para editar productos reciben el costo en el CSV.

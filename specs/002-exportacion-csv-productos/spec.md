@@ -8,6 +8,12 @@
 
 **Input**: User description: "Desde el listado de productos, un usuario con permiso para ver productos puede descargar un archivo CSV con los productos que se muestran según los filtros aplicados: búsqueda por nombre o código, categoría, estado, disponibilidad y solo stock bajo. Sin filtros adicionales, exporta el listado visible por defecto. El archivo incluye código, nombre, categoría, costo, precio, stock y estado, encabezados en español, UTF-8 compatible con Excel y nombre con la fecha de exportación. Si no hay coincidencias, se informa al usuario en lugar de descargar un archivo vacío. El listado y sus filtros existentes no deben alterarse."
 
+## Clarifications
+
+### Session 2026-11-24
+
+- Q: ¿Qué usuarios deben poder obtener el costo en el CSV de productos? → A: C: todos los usuarios con `productos.ver` pueden exportar; la columna Costo solo aparece para quienes también tienen `productos.editar`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Exportar productos filtrados (Priority: P1)
@@ -16,7 +22,7 @@ Como usuario que puede consultar productos, quiero descargar en CSV los producto
 
 **Why this priority**: Permite reutilizar los resultados que el usuario ya obtuvo en el listado, sin tener que copiar los datos manualmente.
 
-**Independent Test**: Con productos de distintas categorías, estados y existencias, aplicar uno o más filtros en el listado, exportar y verificar que el archivo contiene exactamente los resultados visibles y las siete columnas solicitadas. Repetir sin filtros para comprobar que se exporta el listado predeterminado.
+**Independent Test**: Con productos de distintas categorías, estados y existencias, aplicar uno o más filtros en el listado, exportar y verificar que el archivo contiene exactamente los resultados visibles y las columnas permitidas según los permisos del usuario. Repetir sin filtros para comprobar que se exporta el listado predeterminado.
 
 **Acceptance Scenarios**:
 
@@ -24,6 +30,7 @@ Como usuario que puede consultar productos, quiero descargar en CSV los producto
 2. **Given** que el usuario tiene permiso para ver productos y no aplica filtros adicionales, **When** exporta, **Then** el archivo contiene todos los productos del listado predeterminado.
 3. **Given** que el CSV se abre en Excel y hay datos con acentos, comas, comillas o separadores, **When** se revisan sus celdas, **Then** los encabezados y valores siguen legibles y cada dato permanece en su columna.
 4. **Given** que un usuario no tiene permiso para ver productos, **When** intenta acceder a la exportación, **Then** no puede descargar el archivo.
+5. **Given** que un usuario puede ver productos pero no tiene permiso para editar productos, **When** exporta el listado, **Then** el archivo no incluye la columna Costo ni su información; un usuario con ambos permisos sí obtiene esa columna.
 
 ---
 
@@ -46,6 +53,7 @@ Como usuario que filtra el catálogo, quiero saber cuando ningún producto coinc
 - Cada filtro puede combinarse con los demás, y la exportación debe respetar la misma combinación que el listado.
 - El nombre del archivo incluye la fecha en que se solicita la exportación, incluso cuando se repite una exportación en otra fecha.
 - La búsqueda debe conservar el comportamiento existente del listado, incluido cualquier campo adicional que actualmente forme parte de esa búsqueda.
+- El costo no debe aparecer en el CSV de usuarios que pueden ver productos pero no tienen permiso para editar productos.
 
 ## Requirements *(mandatory)*
 
@@ -55,12 +63,12 @@ Como usuario que filtra el catálogo, quiero saber cuando ningún producto coinc
 - **FR-002**: La exportación MUST estar disponible únicamente para usuarios con permiso para ver productos.
 - **FR-003**: El conjunto de filas exportadas MUST coincidir con los resultados del listado para los filtros activos: búsqueda por nombre o código, categoría, estado, disponibilidad y solo stock bajo. MUST respetar también el comportamiento vigente de la búsqueda y el listado.
 - **FR-004**: Cuando no se aplican filtros adicionales, la exportación MUST incluir el listado que el sistema presenta por defecto.
-- **FR-005**: Cada fila del CSV MUST incluir, en este orden, código, nombre, categoría, costo, precio, stock y estado.
-- **FR-006**: El CSV MUST usar encabezados en español: «Código», «Nombre», «Categoría», «Costo», «Precio», «Stock» y «Estado».
+- **FR-005**: Cada fila del CSV MUST incluir código, nombre, categoría, precio, stock y estado, en ese orden. Para usuarios con permiso para editar productos, MUST incluir también el costo entre categoría y precio.
+- **FR-006**: El CSV MUST usar encabezados en español. Para usuarios con permiso para editar productos, los encabezados MUST ser «Código», «Nombre», «Categoría», «Costo», «Precio», «Stock» y «Estado»; para usuarios sin ese permiso, MUST omitir «Costo».
 - **FR-007**: El archivo descargado MUST tener codificación UTF-8 compatible con Excel y un nombre que incluya la fecha de exportación.
 - **FR-008**: Si la búsqueda y los filtros no producen productos, el sistema MUST informar al usuario y MUST NOT descargar un archivo vacío.
 - **FR-009**: La exportación MUST NOT modificar el listado, sus resultados ni sus filtros existentes.
-- **FR-010**: La exportación MUST incluir el costo para los usuarios autorizados a ver productos, según el alcance solicitado para este archivo.
+- **FR-010**: Los usuarios con permiso para ver productos MUST poder exportar el listado. La columna y los valores de costo MUST aparecer únicamente para quienes también tengan permiso para editar productos.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -73,7 +81,7 @@ Como usuario que filtra el catálogo, quiero saber cuando ningún producto coinc
 ### Measurable Outcomes
 
 - **SC-001**: En el 100% de las combinaciones de filtros verificadas, el archivo contiene exactamente los mismos productos que el listado presenta para esos criterios.
-- **SC-002**: El 100% de los archivos exportados con resultados contiene las siete columnas especificadas, en el orden indicado, y conserva correctamente acentos y valores con separadores al abrirse en Excel.
+- **SC-002**: El 100% de los archivos exportados contiene los encabezados y campos permitidos para el usuario: siete columnas, incluido el costo, para quien tiene permiso de edición; seis columnas sin costo para quien solo tiene permiso de consulta. Los valores con acentos y separadores se conservan correctamente al abrirse en Excel.
 - **SC-003**: En el 100% de las pruebas sin coincidencias, no se descarga un CSV vacío, se informa al usuario y se mantienen los filtros aplicados.
 - **SC-004**: La exportación no cambia los resultados, controles ni valores seleccionados del listado antes y después de descargar.
 
@@ -82,5 +90,5 @@ Como usuario que filtra el catálogo, quiero saber cuando ningún producto coinc
 - La exportación reutiliza los criterios y el conjunto de resultados que el listado muestra actualmente; no introduce filtros nuevos ni altera valores predeterminados.
 - Se conserva la búsqueda existente del listado, aunque incluya otros campos además de nombre y código.
 - La fecha del nombre del archivo se expresa como `YYYY-MM-DD`.
-- El archivo de exportación incluye el costo para usuarios con permiso de ver productos, tal como se solicita, aunque el listado actual pueda ocultar ese dato a algunos de esos usuarios.
+- El costo conserva la restricción del sistema actual: solo se exporta para usuarios con permiso para editar productos; el permiso para ver productos por sí solo no autoriza a recibir ese dato.
 - Los permisos de consulta de productos y la sesión autenticada existentes siguen siendo la fuente de autorización.
