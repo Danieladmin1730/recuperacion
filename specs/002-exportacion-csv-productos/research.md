@@ -2,17 +2,17 @@
 
 ## Decisions
 
-### Reuse the listing's normalized filters and result query
+### Reuse the listing's normalized filters and model query
 
-- **Decision**: Normalize the incoming product filters with `normalizarFiltrosListadoProductos()` and pass that result to the same `ProductoController::listar()` call used for the HTML listing. Use that returned array for both rendering and export.
-- **Rationale**: The model already applies all listing criteria, ordering, and the 500-row cap. Sharing the query result prevents filter or ordering drift and avoids a second, subtly different product query.
+- **Decision**: The dedicated export endpoint delegates the raw GET filters to `ProductoController::exportarListado()`. The controller normalizes them with `normalizarFiltrosListadoProductos()` and obtains rows through the existing `ProductoController::listar()` / `Producto::listar()` path used by the HTML listing.
+- **Rationale**: The model already applies all listing criteria, ordering, and the 500-row cap. Reusing the same normalizer and model query prevents filter or ordering drift without adding another SQL query implementation.
 - **Alternatives considered**: Build a separate CSV SQL query; rejected because it duplicates filter logic and can export a different result set.
 
 ### Reuse the existing CSV streaming helper
 
-- **Decision**: Reuse `exportarCsv()` from [helpers/reportes.php](../../SistemaVentas-main/helpers/reportes.php), which writes to `php://output`, sends CSV/download headers, writes a UTF-8 BOM, uses `fputcsv()`, and prefixes formula-like text values to reduce spreadsheet formula injection risk.
+- **Decision**: Reuse `exportarCsv()` from [helpers/reportes.php](../../SistemaVentas-main/helpers/reportes.php), which writes to `php://output`, sends CSV/download headers, writes a UTF-8 BOM, and uses `fputcsv()`. Extract its existing formula-prefix transformation into a pure helper so it can be tested independently, then keep `exportarCsv()` using that helper without changing output behavior.
 - **Rationale**: This is established project behavior for Excel-compatible exports. Its semicolon delimiter matches the Spanish-locale CSV convention already used in the application.
-- **Alternatives considered**: Add a second exporter specific to products; rejected as duplicate serialization and security behavior.
+- **Alternatives considered**: Add a second exporter specific to products; rejected as duplicate serialization and security behavior. Invoke the terminating `exportarCsv()` directly in a unit test; rejected because it sends headers and exits the request.
 
 ### Prepare product-specific headers and rows in a pure helper
 
@@ -22,9 +22,15 @@
 
 ### Handle empty results before sending download headers
 
-- **Decision**: Check the listing result before calling `exportarCsv()`. If empty, show a user-facing flash message and redirect to the product listing with the normalized filters preserved.
+- **Decision**: `ProductoController::exportarListado()` checks the listing result before calling `exportarCsv()`. If empty, the controller sets the existing flash message and redirects to the product listing with normalized filters preserved. The endpoint adapter only enforces `productos.ver` and delegates; the listing view only renders the submit button.
 - **Rationale**: The existing CSV helper sends headers and terminates the request; an empty-result check must therefore happen before invoking it. Redirecting keeps the ordinary listing and selected filters usable.
 - **Alternatives considered**: Download a header-only file; rejected because the specification requires informing the user instead of downloading an empty result.
+
+### Generate a testable, timezone-correct filename
+
+- **Decision**: Add `nombreArchivoProductosCsv()` in `helpers/productos.php`. It formats `productos_YYYY-MM-DD.csv` using the application's configured timezone; allow a fixed instant to be supplied in tests so a UTC/Bogotá date-boundary case is deterministic.
+- **Rationale**: A pure filename helper makes both the required filename shape and the configured local date independently verifiable without changing runtime timezone configuration.
+- **Alternatives considered**: Test only that a downloaded filename contains today's date; rejected because that does not verify the exact pattern or the configured timezone at a date boundary.
 
 ### Preserve numeric precision and existing authorization
 
@@ -36,7 +42,7 @@
 
 - `fputcsv()` formats an array of fields to an opened stream. PHP documents explicitly specifying the escape argument; since PHP 8.4, relying on its default is deprecated. The existing exporter explicitly passes an empty escape string. [PHP: fputcsv](https://www.php.net/manual/en/function.fputcsv.php)
 - `php://output` is a write-only stream for output sent through PHP's output buffering mechanism. [PHP: php:// streams](https://www.php.net/manual/en/wrappers.php.php)
-- `header()` must run before any body output. `Content-Disposition: attachment` supplies the suggested download filename. The export path must therefore run before the product page includes its HTML layout. [PHP: header](https://www.php.net/manual/en/function.header.php)
+- `header()` must run before any body output. `Content-Disposition: attachment` supplies the suggested download filename. The dedicated endpoint must dispatch to the controller before emitting HTML. [PHP: header](https://www.php.net/manual/en/function.header.php)
 
 ## Repository Evidence
 

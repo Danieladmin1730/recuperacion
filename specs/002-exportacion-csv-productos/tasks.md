@@ -4,7 +4,7 @@
 
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `quickstart.md`
 
-**Tests**: PHPUnit tests are included as requested in the implementation plan. Existing filter tests remain regression coverage.
+**Tests**: PHPUnit tests are included as requested in the implementation plan. Existing product filter tests remain regression coverage.
 
 **Organization**: Tasks are grouped by the two user stories in `spec.md`.
 
@@ -26,7 +26,7 @@ No setup task is needed: the PHP application, Composer dependencies, and PHPUnit
 
 **Purpose**: Blocking prerequisites shared by user stories.
 
-No foundational code change is needed. The authenticated product listing, permission checks, filter normalizer, model query, and CSV output helper are already present and will be reused.
+No foundational code change is needed. The authenticated PHP application, filter normalizer, model query, permissions, and CSV output helper are reused.
 
 ---
 
@@ -34,18 +34,21 @@ No foundational code change is needed. The authenticated product listing, permis
 
 **Goal**: Download the exact products and order shown by the existing listing, with fields permitted for the current user.
 
-**Independent Test**: Apply the default listing and representative search/category/state/availability/low-stock filters; compare exported rows and order with the page. Confirm role-dependent headers and values.
+**Independent Test**: Apply valid and invalid filters to the listing and export endpoint; compare resulting rows and order. Confirm role-dependent columns, formula-safe text, numeric precision, and the filename pattern/timezone.
 
 ### Tests for User Story 1
 
-- [ ] T001 [US1] Add PHPUnit unit tests for Spanish CSV headers, row mapping, status labels, numeric precision, and the `productos.editar` cost-field rule in `SistemaVentas-main/tests/Unit/ProductoExportacionCsvTest.php`.
+- [ ] T001 [P] [US1] Add a combined invalid-filter PHPUnit regression case in `SistemaVentas-main/tests/Unit/ProductoFiltrosListadoTest.php`: submit non-text `q`, invalid category/state/availability, and an unaccepted `stock_bajo` value together; assert the normalized result is `q=''`, `categoria=0`, `estado='1'`, `disponibilidad=''`, and `stock_bajo=false`, matching the defaults the export controller passes to the listing query.
+- [ ] T002 [P] [US1] Add focused PHPUnit tests in `SistemaVentas-main/tests/Unit/ProductoExportacionCsvTest.php` for Spanish headers, row mapping, status labels, numeric precision, and the `productos.editar` cost rule; test formula safety for text beginning with `=`, `+`, `-`, and `@`; verify `nombreArchivoProductosCsv()` matches `productos_YYYY-MM-DD.csv` and uses the `America/Bogota` date for a fixed UTC instant crossing the local-date boundary.
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] Add a testable product CSV mapping helper in `SistemaVentas-main/helpers/productos.php`; follow the canonical definitions in `specs/002-exportacion-csv-productos/data-model.md` for `Export row.Código`, `Export row.Nombre`, `Export row.Categoría`, `Export row.Costo`, `Export row.Precio`, `Export row.Stock`, and `Export row.Estado`, including permission-dependent cost and empty-result behavior.
-- [ ] T003 [US1] Add the “Exportar CSV” action and non-empty download path in `SistemaVentas-main/views/productos/index.php`; reuse the normalized filters and the existing `$productos` result, preserve filter parameters, require `productos.ver`, gate cost on `productos.editar`, and call the existing `exportarCsv()` helper from `SistemaVentas-main/helpers/reportes.php` before page-layout output.
+- [ ] T003 [US1] Implement permission-aware product row mapping and `nombreArchivoProductosCsv()` in `SistemaVentas-main/helpers/productos.php`, and extract the existing formula protection into a testable `protegerFilaCsvContraFormulas()` used by `exportarCsv()` in `SistemaVentas-main/helpers/reportes.php`; follow `specs/002-exportacion-csv-productos/data-model.md` for `Export row.Código`, `Export row.Nombre`, `Export row.Categoría`, `Export row.Costo`, `Export row.Precio`, `Export row.Stock`, `Export row.Estado`, `Download metadata.File name`, `Download metadata.Encoding`, and `Download metadata.CSV columns and order`.
+- [ ] T004 [US1] Add `ProductoController::exportarListado()` in `SistemaVentas-main/controllers/ProductoController.php`; load the existing `helpers/funciones.php` and `helpers/reportes.php` dependencies, obtain active categories, normalize incoming GET values with `normalizarFiltrosListadoProductos()`, obtain rows through the same `listar()` path, include cost only for `productos.editar`, and stream mapped rows through `exportarCsv()`; use the canonical `specs/002-exportacion-csv-productos/data-model.md` definitions for `Filter set.q`, `Filter set.categoria`, `Filter set.estado`, `Filter set.disponibilidad`, and `Filter set.stock_bajo`.
+- [ ] T005 [US1] Add the thin authenticated endpoint `SistemaVentas-main/public/exportar_productos.php`; load `config/config.php`, `helpers/permisos.php`, and `controllers/ProductoController.php`, require `productos.ver`, instantiate `ProductoController`, and delegate `$_GET` to `exportarListado()` without duplicating filter, empty-result, mapping, or CSV response logic.
+- [ ] T006 [US1] Add only an “Exportar CSV” submit button to the current GET filter form in `SistemaVentas-main/views/productos/index.php`; target `APP_URL/public/exportar_productos.php` with `formaction`/`formmethod` so the existing filter controls are submitted, and do not add export processing or empty-result handling to the view.
 
-**Checkpoint**: A user with `productos.ver` can download the currently listed results with the correct permission-dependent columns.
+**Checkpoint**: A user with `productos.ver` can export the same non-empty filtered listing, with the correct permission-dependent columns.
 
 ---
 
@@ -53,25 +56,21 @@ No foundational code change is needed. The authenticated product listing, permis
 
 **Goal**: Prevent empty CSV downloads and leave the user on the filtered listing with a clear message.
 
-**Independent Test**: Request export for a filter combination with no matches; verify the visible “No hay productos con estos filtros” message, no file download, and preserved filter selections.
-
-### Tests for User Story 2
-
-- [ ] T004 [P] [US2] Add a PHPUnit test for the empty product-result case in `SistemaVentas-main/tests/Unit/ProductoExportacionCsvVaciaTest.php`, asserting that product export mapping produces no downloadable payload for an empty result.
+**Independent Test**: Request export for a filter combination with no matches; verify the visible message, no file download, and preserved normalized filter selections.
 
 ### Implementation for User Story 2
 
-- [ ] T005 [US2] Handle empty export results in `SistemaVentas-main/views/productos/index.php` before calling `exportarCsv()`; flash the existing no-results message and redirect to the listing with normalized filters preserved, without sending download headers or a CSV body.
+- [ ] T007 [US2] Complete the empty-result branch in `ProductoController::exportarListado()` in `SistemaVentas-main/controllers/ProductoController.php` before any call to `exportarCsv()`; flash “No hay productos con estos filtros” and redirect to the listing with normalized filter values preserved, sending no download headers or CSV body, following `Download metadata.Empty result sets` in `specs/002-exportacion-csv-productos/data-model.md`.
 
-**Checkpoint**: An empty result gives feedback in the listing and never starts a file download.
+**Checkpoint**: Empty results are handled by the controller and never start a CSV download.
 
 ---
 
 ## Phase 5: Polish & Cross-Cutting Validation
 
-**Purpose**: Validate compatibility across both stories without changing existing list behavior.
+**Purpose**: Validate both user stories, security requirements, and existing listing behavior.
 
-- [ ] T006 Run `.\vendor\bin\phpunit --configuration phpunit.xml` from `SistemaVentas-main/` and complete the role, filter-parity, empty-result, and Excel scenarios in `specs/002-exportacion-csv-productos/quickstart.md`.
+- [ ] T008 Run `.\vendor\bin\phpunit --configuration phpunit.xml` from `SistemaVentas-main/` and complete every authorization, filter-parity (including invalid values), empty-result, formula-safety, Excel, and filename/timezone scenario in `specs/002-exportacion-csv-productos/quickstart.md`.
 
 ---
 
@@ -80,55 +79,57 @@ No foundational code change is needed. The authenticated product listing, permis
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No tasks; existing project setup is used.
-- **Foundational (Phase 2)**: No tasks; existing product listing, permissions, and CSV helper are reused.
-- **User Story 1 (Phase 3)**: Starts immediately; no new schema or infrastructure prerequisite.
-- **User Story 2 (Phase 4)**: Depends on the export request path from User Story 1 (T003); it adds the empty-result behavior to that path.
-- **Polish (Phase 5)**: Depends on both user stories being complete.
+- **Foundational (Phase 2)**: No tasks; existing permissions, normalizer, model query, and CSV helper are reused.
+- **User Story 1 (Phase 3)**: Starts with the two independent test tasks; implementation follows both.
+- **User Story 2 (Phase 4)**: Depends on the controller export method from T004; the empty check must precede streaming.
+- **Polish (Phase 5)**: Depends on all preceding tasks.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Independent; delivers export for non-empty listing results.
-- **User Story 2 (P2)**: Depends on the export path and mapping introduced by User Story 1.
+- **User Story 2 (P2)**: Adds the empty-result branch to the controller export action from User Story 1.
 
 ### Task Dependency Graph
 
 ```text
-T001 -> T002 -> T003 ----\
-                  \       -> T005 -> T006
-                   -> T004 /
+T001 ----\
+          -> T003 -> T004 -> T005 -> T006 -> T007 -> T008
+T002 ----/
 ```
 
-T003 and T004 can run in parallel after T002 because they modify different files. All other tasks are sequential due to test-first implementation or shared-file changes.
+T001 and T002 can run in parallel because they update different test files. Remaining tasks are ordered so the controller, endpoint, presentation button, and empty-result branch are independently reviewable in story order.
 
-## Parallel Example: User Story 1 and User Story 2
-
-After T002 completes, the successful download path and the empty-result unit test can proceed in parallel:
+## Parallel Example
 
 ```text
-T003: Integrate the non-empty export path in SistemaVentas-main/views/productos/index.php
-T004: Add the empty-result mapping test in SistemaVentas-main/tests/Unit/ProductoExportacionCsvVaciaTest.php
+Run these independent test tasks in parallel:
+T001: Add combined invalid-filter normalization test in tests/Unit/ProductoFiltrosListadoTest.php
+T002: Add CSV/formula/filename tests in tests/Unit/ProductoExportacionCsvTest.php
 ```
 
 ## Implementation Strategy
 
 ### MVP First
 
-1. Complete T001 and T002 for testable CSV row/header mapping.
-2. Complete T003 for the permission-aware, filtered, non-empty download.
-3. Complete T004 and T005 before release so empty filters never produce a blank download.
-4. Complete T006 and verify both stories independently.
+1. Complete T001 and T002 as focused regression tests.
+2. Complete T003 and T004 for safe mapping and the controller-owned non-empty export.
+3. Complete T005 and T006 to expose the authenticated endpoint and button-only listing action.
+4. Complete T007 so empty results are handled by the controller before streaming.
+5. Complete T008 before release.
 
-User Story 1 is the first demonstrable increment. The complete feature must include User Story 2 before release because it defines the required empty-result behavior.
+User Story 1 is the first demonstrable increment. The complete feature must also include User Story 2 before release.
 
 ### Incremental Delivery
 
-1. Deliver filtered export for non-empty results (User Story 1).
-2. Add the no-results feedback and download suppression (User Story 2).
-3. Run PHPUnit and the end-to-end scenarios in `quickstart.md`.
+1. Deliver the controller-backed export for non-empty filtered results.
+2. Connect the button-only listing UI to the authenticated endpoint.
+3. Add the controller-owned no-results flash and redirect.
+4. Run PHPUnit and all end-to-end scenarios in `quickstart.md`.
 
 ## Notes
 
-- No changes are planned for `SistemaVentas-main/models/Producto.php`, `SistemaVentas-main/controllers/ProductoController.php`, the database schema, or Composer dependencies.
+- No changes are planned for `SistemaVentas-main/models/Producto.php`, the database schema, or Composer dependencies.
 - Reuse `normalizarFiltrosListadoProductos()` and `Producto::listar()` so CSV rows match the existing listing.
-- The cost field remains protected by `productos.editar`; `productos.ver` alone grants export access without cost.
-- **Format validation**: all six task entries use `- [ ] T###`, user-story labels are present only for story tasks, parallel markers are limited to independent work, and every task includes a file path.
+- The endpoint requires `productos.ver`; the controller includes cost only for users with `productos.editar`.
+- Formula escaping remains the existing behavior; extracting its pure row transformation must not change serialized CSV output.
+- **Format validation**: all eight tasks use `- [ ] T###`, user-story labels are present on story tasks only, parallel markers are limited to independent work, and every task includes a file path.
