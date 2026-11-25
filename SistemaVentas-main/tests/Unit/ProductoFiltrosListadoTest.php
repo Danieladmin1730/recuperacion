@@ -64,4 +64,23 @@ final class ProductoFiltrosListadoTest extends TestCase
         self::assertTrue($valido['stock_bajo']);
         self::assertFalse($invalido['stock_bajo']);
     }
+
+    public function testNormalizaEnConjuntoLosFiltrosInvalidosQueRecibeLaExportacion(): void
+    {
+        $filtros = normalizarFiltrosListadoProductos([
+            'q' => ['texto'],
+            'categoria' => '99',
+            'estado' => 'otro',
+            'disponibilidad' => 'otro',
+            'stock_bajo' => 'true',
+        ], [1, 2]);
+
+        self::assertSame([
+            'q' => '',
+            'categoria' => 0,
+            'estado' => '1',
+            'stock_bajo' => false,
+            'disponibilidad' => '',
+        ], $filtros);
+    }
 }

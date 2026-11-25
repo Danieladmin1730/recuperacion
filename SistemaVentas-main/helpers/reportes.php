@@ -56,6 +56,12 @@ function dineroCorto(float $v): string {
     if ($v>=1000) return '$'.number_format($v/1000,0,',','.').' mil';
     return '$'.number_format($v,0,',','.');
 }
+function protegerFilaCsvContraFormulas(array $fila): array {
+    return array_map(
+        static fn($valor) => is_string($valor) && preg_match('/^[=+\-@]/', $valor) ? "'" . $valor : $valor,
+        $fila
+    );
+}
 // Descarga CSV compatible con Excel en español (separador ';' y BOM UTF-8).
 function exportarCsv(string $archivo, array $encabezados, array $filas): never {
     header('Content-Type: text/csv; charset=utf-8');
@@ -64,8 +70,7 @@ function exportarCsv(string $archivo, array $encabezados, array $filas): never {
     fwrite($out,"\xEF\xBB\xBF");
     fputcsv($out,$encabezados,';','"','');
     foreach ($filas as $f) {
-        // Evita que Excel interprete textos que empiezan por = + - @ como fórmulas.
-        fputcsv($out,array_map(fn($v) => is_string($v) && preg_match('/^[=+\-@]/',$v) ? "'".$v : $v, $f),';','"','');
+        fputcsv($out,protegerFilaCsvContraFormulas($f),';','"','');
     }
     fclose($out);
     exit;

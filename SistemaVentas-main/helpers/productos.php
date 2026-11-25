@@ -43,6 +43,36 @@ function normalizarFiltrosListadoProductos(array $entrada, array $idsCategoriasA
     ];
 }
 
+function mapearProductosCsv(array $productos, bool $verCostos): array {
+    $encabezados = ['Código', 'Nombre', 'Categoría'];
+    if ($verCostos) $encabezados[] = 'Costo';
+    array_push($encabezados, 'Precio', 'Stock', 'Estado');
+
+    $filas = [];
+    foreach ($productos as $producto) {
+        $fila = [
+            (string)($producto['codigo'] ?? ''),
+            (string)($producto['nombre'] ?? ''),
+            (string)($producto['categoria'] ?? ''),
+        ];
+        if ($verCostos) {
+            $fila[] = number_format((float)($producto['precio_compra'] ?? 0), 2, ',', '');
+        }
+        $fila[] = number_format((float)($producto['precio_venta'] ?? 0), 2, ',', '');
+        $fila[] = str_replace('.', ',', (string)($producto['stock'] ?? ''));
+        $fila[] = (int)($producto['estado'] ?? 0) === 1 ? 'Activo' : 'Inactivo';
+        $filas[] = $fila;
+    }
+
+    return ['encabezados' => $encabezados, 'filas' => $filas];
+}
+
+function nombreArchivoProductosCsv(?DateTimeImmutable $instante = null): string {
+    $zona = new DateTimeZone(date_default_timezone_get());
+    $fecha = ($instante ?? new DateTimeImmutable('now', $zona))->setTimezone($zona);
+    return 'productos_' . $fecha->format('Y-m-d') . '.csv';
+}
+
 function urlImagenProducto(?string $imagen): ?string {
     return $imagen ? APP_URL . '/assets/img/productos/' . rawurlencode($imagen) : null;
 }

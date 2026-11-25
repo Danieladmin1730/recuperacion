@@ -32,6 +32,13 @@ Expected: existing search/filter/listing tests and the new product CSV tests pas
 10. Verify the filename exactly matches `productos_YYYY-MM-DD.csv`. In the PHPUnit date-boundary test, pass a fixed UTC instant that falls on the previous calendar date in `America/Bogota` and assert the filename uses the Bogotá date.
 11. Run the formula-safety PHPUnit test with text values beginning with `=`, `+`, `-`, and `@`; confirm the serialized values are protected as text and are not interpreted as formulas.
 
+## Manual browser validation — 2026-11-24
+
+- Exportación sin filtros: validada en el navegador; el CSV se descargó correctamente.
+- Exportación con filtro de categoría: validada en el navegador; la descarga conservó el filtro aplicado.
+- Combinación sin resultados: validada en el navegador; se mostró el aviso “No hay productos con estos filtros” y no se inició una descarga vacía.
+- Nombre del archivo: validado en el navegador; el archivo usó el patrón `productos_YYYY-MM-DD.csv` con la fecha correcta.
+
 ## Expected outcome
 
 The download contains exactly the same filtered product rows as the existing listing, with fields allowed by the user's permissions. No schema or listing-filter behavior changes.

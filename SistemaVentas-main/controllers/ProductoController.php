@@ -25,6 +25,29 @@ class ProductoController {
     public function categorias(): array { return (new Categoria($this->db))->activas(); }
     public function resumenStock(): array { return $this->productos->resumenStock(); }
 
+    public function exportarListado(array $entrada): never {
+        require_once __DIR__ . '/../helpers/funciones.php';
+        require_once __DIR__ . '/../helpers/reportes.php';
+
+        $categorias = $this->categorias();
+        $filtros = normalizarFiltrosListadoProductos($entrada, array_column($categorias, 'id_categoria'));
+        $productos = $this->listar($filtros);
+        if (!$productos) {
+            flash('error', 'No hay productos con estos filtros');
+            $consulta = http_build_query([
+                'q' => $filtros['q'],
+                'categoria' => $filtros['categoria'],
+                'estado' => $filtros['estado'],
+                'disponibilidad' => $filtros['disponibilidad'],
+                'stock_bajo' => $filtros['stock_bajo'] ? '1' : '',
+            ]);
+            redirect(APP_URL . '/views/productos/index.php?' . $consulta);
+        }
+        $csv = mapearProductosCsv($productos, tienePermiso('productos.editar'));
+
+        exportarCsv(nombreArchivoProductosCsv(), $csv['encabezados'], $csv['filas']);
+    }
+
     // Devuelve [id del producto, errores].
     public function crear(array $post, array $archivo): array {
         [$d,$errores]=$this->validar($post,0);

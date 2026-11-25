@@ -41,6 +41,7 @@ require __DIR__ . '/../layouts/header.php';
   </label>
   <label class="check"><input type="checkbox" name="stock_bajo" value="1" <?= $filtros['stock_bajo'] ? 'checked' : '' ?>> Solo stock bajo</label>
   <button class="btn">Filtrar</button>
+  <button class="btn btn-light" type="submit" formaction="<?= e(APP_URL . '/public/exportar_productos.php') ?>" formmethod="get">Exportar CSV</button>
   <a class="btn btn-light" href="index.php">Limpiar filtros</a>
 </form>
 <p class="resumen-filtro"><?= count($productos) ?> productos</p>
